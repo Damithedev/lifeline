@@ -5,6 +5,9 @@ class Splashscreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      backgroundColor: Color(0x1A1A1A),
+      body: Center(child: Image(image: AssetImage("images/logo.png"))),
+    );
   }
 }
