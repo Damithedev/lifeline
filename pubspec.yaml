@@ -65,7 +65,7 @@ flutter:
     - images/onb1.png
     - images/onb2.png
     - images/onb3.png
-    - images/onbg.svg
+    - images/onbg.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
