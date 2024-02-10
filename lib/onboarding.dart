@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:lifeline/auth.dart';
+import 'package:page_transition/page_transition.dart';
 
 class onboard extends StatefulWidget {
   const onboard({super.key});
@@ -126,10 +128,11 @@ class _onboardState extends State<onboard> {
                             duration: Duration(milliseconds: 300),
                             curve: Curves.ease);
                         if (_pageindex == data.length - 1) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => Home()),
-                          );
+                          Navigator.push(
+                              context,
+                              PageTransition(
+                                  type: PageTransitionType.leftToRight,
+                                  child: Signup()));
                         }
                       },
                       child: Text(
