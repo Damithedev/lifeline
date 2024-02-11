@@ -1,10 +1,11 @@
 import 'package:date_format_field/date_format_field.dart';
 import 'package:flutter/material.dart';
-import 'package:lifeline/auth.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:page_transition/page_transition.dart';
+import 'auth.dart';
 
 class Accountsetup extends StatefulWidget {
-  const Accountsetup({super.key});
+  const Accountsetup({Key? key}) : super(key: key);
 
   @override
   State<Accountsetup> createState() => _AccountsetupState();
@@ -19,27 +20,36 @@ class _AccountsetupState extends State<Accountsetup> {
 
   @override
   void initState() {
-    // TODO: implement initState
     _pageController = PageController(initialPage: 0);
     super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _pageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<String> items = [
+      'Item1',
+      'Item2',
+      'Item3',
+      'Item4',
+      'Item5',
+      'Item6',
+      'Item7',
+      'Item8',
+    ];
     DateTime? date;
+
+    var selectedValue;
     return Scaffold(
-        backgroundColor: Color.fromARGB(255, 243, 246, 249),
-        body: Column(children: [
-          SizedBox(
-            height: 50,
-          ),
+      backgroundColor: Color.fromARGB(255, 243, 246, 249),
+      body: Column(
+        children: [
+          SizedBox(height: 50),
           Center(
             child: Text(
               "LifeLine",
@@ -50,205 +60,213 @@ class _AccountsetupState extends State<Accountsetup> {
             ),
           ),
           Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _pageindex = index;
-                });
-              },
+            child: ListView(
               children: [
-                Page1(
-                  fname: fname,
-                  lname: lname,
-                  DOB: DOB,
-                ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 18),
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
                   child: ListView(
-                    children: [],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 100,
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    ...List.generate(
-                        2,
-                        (index) => Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 4),
-                                child: Dotindicator(
-                                  isActive: index == _pageindex,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(height: 20),
+                      Text(
+                        "Personal details",
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w900, fontSize: 28),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10, bottom: 28),
+                        child: Text(
+                          "Profile Picture",
+                          style: TextStyle(fontSize: 15, color: Colors.grey),
+                        ),
+                      ),
+                      Stack(
+                        children: [
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: CircleAvatar(
+                              radius:
+                                  50, // Adjust the radius as per your requirement
+                              backgroundImage:
+                                  AssetImage('assets/images/your_image.jpg'),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Positioned(
+                              left: 75,
+                              bottom: 3,
+                              child: CircleAvatar(
+                                radius:
+                                    20, // Adjust the radius as per your requirement
+                                backgroundColor: Colors.red,
+                                child: Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
                                 ),
                               ),
-                            ))
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  height: 65,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: Offset(0, 3), // changes position of shadow
+                            ),
+                          ),
+                        ],
+                      ),
+                      xInputfield(
+                          label: 'First Name',
+                          Hinttext: 'Enter First Name',
+                          icon: Icons.person,
+                          controller: fname),
+                      xInputfield(
+                          label: 'Last Name',
+                          Hinttext: 'Enter Last Name',
+                          icon: Icons.person,
+                          controller: lname),
+                      DateFormatField(
+                        onComplete: (DateTime? dateTime) {
+                          if (dateTime == null) {
+                          } else {
+                            if (dateTime.isAfter(DateTime.now())) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Please select a valid date'),
+                                  duration: Duration(milliseconds: 300),
+                                ),
+                              );
+                            } else {
+                              print('Selected date: $dateTime');
+                            }
+                          }
+                        },
+                        controller: DOB,
+                        type: DateFormatType.type2,
+                        addCalendar: true,
+                        decoration: InputDecoration(
+                          floatingLabelBehavior: FloatingLabelBehavior.never,
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide
+                                .none, // Transparent border in normal state
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          fillColor: Colors.white,
+                          labelText: 'Date Of Birth',
+                          hintText: 'Date of Birth',
+                          prefixIcon: Icon(Icons.calendar_today),
+                        ),
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime.now(),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton2<String>(
+                            isExpanded: true,
+                            hint: const Text(
+                              'Select Gender',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            items: items
+                                .map((String item) => DropdownMenuItem<String>(
+                                      value: item,
+                                      child: Text(
+                                        item,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ))
+                                .toList(),
+                            value: selectedValue,
+                            onChanged: (String? value) {
+                              setState(() {
+                                selectedValue = value;
+                                print(selectedValue);
+                              });
+                            },
+                            buttonStyleData: ButtonStyleData(
+                              height: 55,
+                              width: 160,
+                              padding:
+                                  const EdgeInsets.only(left: 14, right: 14),
+                              decoration: BoxDecoration(
+                                boxShadow: [],
+                                borderRadius: BorderRadius.circular(14),
+                                color: Colors.white,
+                              ),
+                              elevation: 2,
+                            ),
+                            menuItemStyleData: const MenuItemStyleData(
+                              height: 40,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
-                    color: Color.fromARGB(255, 221, 12, 12),
-                  ),
-                  child: TextButton(
-                    onPressed: () {
-                      print(_pageController.page);
-                      // Add your button action here
-                      _pageController.nextPage(
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.ease);
-                      if (_pageindex == 2) {
-                        Navigator.push(
-                            context,
-                            PageTransition(
-                                type: PageTransitionType.leftToRight,
-                                child: Signup()));
-                      }
-                    },
-                    child: Text(
-                      "Next",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
                   ),
                 ),
               ],
             ),
-          )
-        ]));
-  }
-}
-
-class Page1 extends StatelessWidget {
-  const Page1({
-    super.key,
-    required this.fname,
-    required this.lname,
-    required this.DOB,
-  });
-
-  final TextEditingController fname;
-  final TextEditingController lname;
-  final TextEditingController DOB;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18),
-      child: ListView(children: [
-        SizedBox(
-          height: 20,
-        ),
-        Text(
-          "Personal details",
-          textAlign: TextAlign.left,
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 28),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 28),
-          child: Text(
-            "Profile Picture",
-            style: TextStyle(fontSize: 15, color: Colors.grey),
           ),
-        ),
-        Stack(
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: CircleAvatar(
-                radius: 50, // Adjust the radius as per your requirement
-                backgroundImage: AssetImage('assets/images/your_image.jpg'),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Container(
+              height: 65,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3), // changes position of shadow
+                  ),
+                ],
+                color: Color.fromARGB(255, 221, 12, 12),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Positioned(
-                left: 75,
-                bottom: 3,
-                child: CircleAvatar(
-                  radius: 20, // Adjust the radius as per your requirement
-                  backgroundColor: Colors.red,
-                  child: Icon(
-                    Icons.edit,
+              child: TextButton(
+                onPressed: () {
+                  print(_pageController.page);
+                  // Add your button action here
+                  _pageController.nextPage(
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                  );
+                  if (_pageindex == 2) {
+                    Navigator.push(
+                      context,
+                      PageTransition(
+                        type: PageTransitionType.leftToRight,
+                        child: Signup(),
+                      ),
+                    );
+                  }
+                },
+                child: Text(
+                  "Next",
+                  style: TextStyle(
                     color: Colors.white,
+                    fontSize: 16,
                   ),
                 ),
               ),
             ),
-          ],
-        ),
-        xInputfield(
-            label: 'First Name',
-            Hinttext: 'Enter First Name',
-            icon: Icons.person,
-            controller: fname),
-        xInputfield(
-            label: 'Last Name',
-            Hinttext: 'Enter Last Name',
-            icon: Icons.person,
-            controller: lname),
-        DateFormatField(
-          onComplete: (DateTime? dateTime) {
-            if (dateTime == null) {
-            } else {
-              if (dateTime!.isAfter(DateTime.now())) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Please select a  valid date'),
-                    duration: Duration(milliseconds: 300),
-                  ),
-                );
-              } else {
-                print('Selected date: $dateTime');
-              }
-            }
-          },
-          controller: DOB,
-          type: DateFormatType.type2,
-          addCalendar: true,
-          decoration: InputDecoration(
-            floatingLabelBehavior: FloatingLabelBehavior.never,
-            filled: true,
-            border: OutlineInputBorder(
-              borderSide: BorderSide.none, // Transparent border in normal state
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            fillColor: Colors.white,
-            labelText: 'Date Of Birth',
-            hintText: 'Date of Birth',
-            prefixIcon: Icon(Icons.calendar_today),
           ),
-          initialDate: DateTime.now(),
-          firstDate: DateTime(2000),
-          lastDate: DateTime.now(),
-        )
-      ]),
+        ],
+      ),
     );
   }
 }
 
 class Dotindicator extends StatelessWidget {
-  const Dotindicator({super.key, this.isActive = false});
+  const Dotindicator({Key? key, this.isActive = false}) : super(key: key);
   final bool isActive;
+
   @override
   Widget build(BuildContext context) {
     return Container(
