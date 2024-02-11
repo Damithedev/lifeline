@@ -1,8 +1,10 @@
 import 'package:date_format_field/date_format_field.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:page_transition/page_transition.dart';
 import 'auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Accountsetup extends StatefulWidget {
   const Accountsetup({Key? key}) : super(key: key);
@@ -32,6 +34,22 @@ class _AccountsetupState extends State<Accountsetup> {
 
   @override
   Widget build(BuildContext context) {
+    // Create a CollectionReference called users that references the firestore collection
+
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+
+    Future<void> addUser() {
+      // Call the user's CollectionReference to add a new user
+      return users
+          .add({
+            'full_name': "fullName", // John Doe
+            'company': "company", // Stokes and Sons
+            'age': "age" // 42
+          })
+          .then((value) => print("User Added"))
+          .catchError((error) => print("Failed to add user: $error"));
+    }
+
     final List<String> items = [
       'Item1',
       'Item2',
@@ -230,23 +248,7 @@ class _AccountsetupState extends State<Accountsetup> {
                 color: Color.fromARGB(255, 221, 12, 12),
               ),
               child: TextButton(
-                onPressed: () {
-                  print(_pageController.page);
-                  // Add your button action here
-                  _pageController.nextPage(
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.ease,
-                  );
-                  if (_pageindex == 2) {
-                    Navigator.push(
-                      context,
-                      PageTransition(
-                        type: PageTransitionType.leftToRight,
-                        child: Signup(),
-                      ),
-                    );
-                  }
-                },
+                onPressed: addUser,
                 child: Text(
                   "Next",
                   style: TextStyle(
