@@ -262,9 +262,7 @@ class _AccountsetupState extends State<Accountsetup> {
                               );
                             } else {
                               try {
-                                users
-                                    .doc(FirebaseAuth.instance.currentUser?.uid)
-                                    .set({
+                                users.doc(finstance.currentUser?.uid).set({
                                   'firstname': fname.text,
                                   'lastname': lname.text,
                                   'date_of_birth': dateparser(DOB.text),
