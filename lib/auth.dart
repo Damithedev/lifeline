@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lifeline/Accountsetup.dart';
@@ -16,7 +17,7 @@ class _SignupState extends State<Signup> {
   final email = TextEditingController();
   final password = TextEditingController();
   final confirmpass = TextEditingController();
-
+  CollectionReference users = FirebaseFirestore.instance.collection('users');
   @override
   void dispose() {
     // TODO: implement dispose
@@ -28,15 +29,15 @@ class _SignupState extends State<Signup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Color.fromARGB(255, 243, 246, 249),
+        backgroundColor: const Color.fromARGB(255, 243, 246, 249),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 50,
               ),
-              Center(
+              const Center(
                 child: Text(
                   "LifeLine",
                   style: TextStyle(
@@ -47,16 +48,16 @@ class _SignupState extends State<Signup> {
               ),
               Expanded(
                 child: ListView(children: [
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
-                  Text(
+                  const Text(
                     "Hey, Hello 👋",
                     textAlign: TextAlign.left,
                     style: TextStyle(fontWeight: FontWeight.w900, fontSize: 28),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 28),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 28),
                     child: Text(
                       "Enter Your information to create an account",
                       style: TextStyle(fontSize: 15, color: Colors.grey),
@@ -154,7 +155,7 @@ class _SignupState extends State<Signup> {
                             },
                           ),
                           RichText(
-                            text: TextSpan(
+                            text: const TextSpan(
                               children: [
                                 TextSpan(
                                   text:
@@ -197,31 +198,35 @@ class _SignupState extends State<Signup> {
                                     color: Colors.grey.withOpacity(0.5),
                                     spreadRadius: 2,
                                     blurRadius: 5,
-                                    offset: Offset(
+                                    offset: const Offset(
                                         0, 3), // changes position of shadow
                                   ),
                                 ],
-                                color: Color.fromARGB(255, 221, 12, 12),
+                                color: const Color.fromARGB(255, 221, 12, 12),
                               ),
                               child: TextButton(
                                 onPressed: () async {
                                   if (_formKey.currentState!.validate()) {
                                     try {
-                                      final credential = await FirebaseAuth
-                                          .instance
+                                      await FirebaseAuth.instance
                                           .createUserWithEmailAndPassword(
                                         email: email.text,
                                         password: password.text,
-                                      );
-
-                                      Navigator.push(
-                                          context,
-                                          PageTransition(
-                                              type: PageTransitionType
-                                                  .rightToLeft,
-                                              duration:
-                                                  Duration(milliseconds: 200),
-                                              child: Accountsetup()));
+                                      )
+                                          .then((value) {
+                                        users
+                                            .doc(FirebaseAuth
+                                                .instance.currentUser?.uid)
+                                            .set({'Phone': phonenumber.text});
+                                        Navigator.push(
+                                            context,
+                                            PageTransition(
+                                                type: PageTransitionType
+                                                    .rightToLeft,
+                                                duration: const Duration(
+                                                    milliseconds: 200),
+                                                child: const Accountsetup()));
+                                      });
                                     } on FirebaseAuthException catch (e) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(
@@ -232,7 +237,7 @@ class _SignupState extends State<Signup> {
                                     }
                                   }
                                 },
-                                child: Text(
+                                child: const Text(
                                   "Create Account",
                                   style: TextStyle(
                                     color: Colors.white,
@@ -251,11 +256,11 @@ class _SignupState extends State<Signup> {
                             context,
                             PageTransition(
                                 type: PageTransitionType.rightToLeft,
-                                duration: Duration(milliseconds: 200),
-                                child: Login()));
+                                duration: const Duration(milliseconds: 200),
+                                child: const Login()));
                       },
                       child: RichText(
-                          text: TextSpan(children: [
+                          text: const TextSpan(children: [
                         TextSpan(
                           text: "Already have an Account? ",
                           style: TextStyle(fontSize: 15, color: Colors.grey),
@@ -267,7 +272,7 @@ class _SignupState extends State<Signup> {
                       ])),
                     ),
                   ),
-                  Spacer()
+                  const Spacer()
                 ]),
               ),
             ],
@@ -307,7 +312,7 @@ class xInputfield extends StatelessWidget {
       child: TextFormField(
         obscureText: isObscure,
         controller: controller,
-        style: TextStyle(fontSize: 15),
+        style: const TextStyle(fontSize: 15),
         decoration: InputDecoration(
           floatingLabelBehavior: FloatingLabelBehavior.never,
           filled: true,
@@ -322,10 +327,12 @@ class xInputfield extends StatelessWidget {
             borderRadius: BorderRadius.circular(15.0),
           ),
           fillColor: Colors.white,
-          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
           focusedBorder: OutlineInputBorder(
             // Set border for focused state
-            borderSide: BorderSide(color: Colors.grey), // Choose desired color
+            borderSide:
+                const BorderSide(color: Colors.grey), // Choose desired color
             borderRadius: BorderRadius.circular(40.0),
           ),
         ),
@@ -345,15 +352,15 @@ class Login extends StatelessWidget {
     final password = TextEditingController();
     final phonenumber = TextEditingController();
     return Scaffold(
-        backgroundColor: Color.fromARGB(255, 243, 246, 249),
+        backgroundColor: const Color.fromARGB(255, 243, 246, 249),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 50,
               ),
-              Center(
+              const Center(
                 child: Text(
                   "LifeLine",
                   style: TextStyle(
@@ -364,16 +371,16 @@ class Login extends StatelessWidget {
               ),
               Expanded(
                 child: ListView(children: [
-                  SizedBox(
+                  const SizedBox(
                     height: 30,
                   ),
-                  Text(
+                  const Text(
                     "Welcome back 👋",
                     textAlign: TextAlign.left,
                     style: TextStyle(fontWeight: FontWeight.w900, fontSize: 28),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 28),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 28),
                     child: Text(
                       "Enter Your Credentials",
                       style: TextStyle(fontSize: 15, color: Colors.grey),
@@ -435,14 +442,15 @@ class Login extends StatelessWidget {
                             color: Colors.grey.withOpacity(0.5),
                             spreadRadius: 2,
                             blurRadius: 5,
-                            offset: Offset(0, 3), // changes position of shadow
+                            offset: const Offset(
+                                0, 3), // changes position of shadow
                           ),
                         ],
-                        color: Color.fromARGB(255, 221, 12, 12),
+                        color: const Color.fromARGB(255, 221, 12, 12),
                       ),
                       child: TextButton(
                         onPressed: () {},
-                        child: Text(
+                        child: const Text(
                           "Login",
                           style: TextStyle(
                             color: Colors.white,
@@ -459,10 +467,10 @@ class Login extends StatelessWidget {
                             context,
                             PageTransition(
                                 type: PageTransitionType.leftToRight,
-                                child: Signup()));
+                                child: const Signup()));
                       },
                       child: RichText(
-                          text: TextSpan(children: [
+                          text: const TextSpan(children: [
                         TextSpan(
                           text: "Don't have an Account? ",
                           style: TextStyle(fontSize: 15, color: Colors.grey),
@@ -479,6 +487,5 @@ class Login extends StatelessWidget {
             ],
           ),
         ));
-    ;
   }
 }

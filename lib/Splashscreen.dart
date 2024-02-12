@@ -15,10 +15,10 @@ class _SplashscreenState extends State<Splashscreen> {
     super.initState();
 
     // Introducing a 3-second delay before navigating to the main screen
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => onboard()),
+        MaterialPageRoute(builder: (context) => const onboard()),
       );
     });
   }
@@ -26,10 +26,10 @@ class _SplashscreenState extends State<Splashscreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0x1A1A1A),
+      backgroundColor: const Color(0x001a1a1a),
       body: Column(
         children: [
-          Expanded(
+          const Expanded(
               child:
                   Center(child: Image(image: AssetImage("images/logo.png")))),
           Lottie.asset('images/loadanimation.json', width: 100),

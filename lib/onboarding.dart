@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:lifeline/auth.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -31,13 +30,13 @@ class _onboardState extends State<onboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(239, 243, 246, 249),
+      backgroundColor: const Color.fromARGB(239, 243, 246, 249),
       body: Column(
         children: [
-          SizedBox(
+          const SizedBox(
             height: 50,
           ),
-          Center(
+          const Center(
               child: Text(
             "LifeLine",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
@@ -78,7 +77,7 @@ class _onboardState extends State<onboard> {
             height: 120,
             child: Row(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 20,
                 ),
                 Expanded(
@@ -91,8 +90,14 @@ class _onboardState extends State<onboard> {
                     child: TextButton(
                       onPressed: () {
                         // Add your button action here
+                        Navigator.push(
+                            context,
+                            PageTransition(
+                                type: PageTransitionType.rightToLeft,
+                                duration: const Duration(milliseconds: 200),
+                                child: const Signup()));
                       },
-                      child: Text(
+                      child: const Text(
                         "Skip",
                         style: TextStyle(
                           color: Color.fromARGB(255, 221, 12, 12),
@@ -102,7 +107,7 @@ class _onboardState extends State<onboard> {
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 20,
                 ),
                 Expanded(
@@ -115,27 +120,27 @@ class _onboardState extends State<onboard> {
                           color: Colors.grey.withOpacity(0.5),
                           spreadRadius: 2,
                           blurRadius: 5,
-                          offset: Offset(0, 3), // changes position of shadow
+                          offset: const Offset(0, 3), // changes position of shadow
                         ),
                       ],
-                      color: Color.fromARGB(255, 221, 12, 12),
+                      color: const Color.fromARGB(255, 221, 12, 12),
                     ),
                     child: TextButton(
                       onPressed: () {
                         print(_pageController.page);
                         // Add your button action here
                         _pageController.nextPage(
-                            duration: Duration(milliseconds: 300),
+                            duration: const Duration(milliseconds: 300),
                             curve: Curves.ease);
                         if (_pageindex == data.length - 1) {
                           Navigator.push(
                               context,
                               PageTransition(
                                   type: PageTransitionType.leftToRight,
-                                  child: Signup()));
+                                  child: const Signup()));
                         }
                       },
-                      child: Text(
+                      child: const Text(
                         "Next",
                         style: TextStyle(
                           color: Colors.white,
@@ -145,7 +150,7 @@ class _onboardState extends State<onboard> {
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 20,
                 ),
               ],
@@ -211,7 +216,7 @@ class Onboardcontent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Spacer(),
+        const Spacer(),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Image.asset(
@@ -219,16 +224,16 @@ class Onboardcontent extends StatelessWidget {
             fit: BoxFit.fitWidth,
           ),
         ),
-        Spacer(),
+        const Spacer(),
         Text(
           title,
           textAlign: TextAlign.center,
           style: Theme.of(context)
               .textTheme
-              .headline5!
+              .headlineSmall!
               .copyWith(fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: Text(
@@ -236,7 +241,7 @@ class Onboardcontent extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ),
-        Spacer()
+        const Spacer()
       ],
     );
   }

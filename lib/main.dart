@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lifeline/Accountsetup.dart';
 
-import 'package:lifeline/Splashscreen.dart';
-import 'package:lifeline/onboarding.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -42,7 +40,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: Accountsetup(),
+      home: const Accountsetup(),
     );
   }
 }
