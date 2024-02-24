@@ -1,6 +1,6 @@
 # Lifeline
 
-Lifeline is a mental health assistance app that provides immediate access to qualified volunteers who can offer support and guidance to people in need. The app is designed to be a safe and anonymous platform where users can connect with compassionate listeners who are trained to provide emotional support.
+Lifeline is a  health assistance app that provides immediate access to qualified volunteers who can offer support and guidance to people in need. The app is designed to be a safe and anonymous platform where users can connect with compassionate listeners who are trained to provide emotional support.
 Features
 
    - Immediate access to support: Users can connect with a volunteer listener within minutes, ensuring that they receive the support they need right away.
