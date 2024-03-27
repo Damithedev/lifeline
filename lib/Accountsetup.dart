@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:date_format_field/date_format_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,7 +10,10 @@ import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:rounded_loading_button/rounded_loading_button.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
+
 
 class Accountsetup extends StatefulWidget {
   const Accountsetup({Key? key}) : super(key: key);
@@ -19,6 +23,8 @@ class Accountsetup extends StatefulWidget {
 }
 
 class _AccountsetupState extends State<Accountsetup> {
+  final picker = ImagePicker();
+  File? _imageFile;
   final fname = TextEditingController();
   final lname = TextEditingController();
   final DOB = TextEditingController();
@@ -26,6 +32,17 @@ class _AccountsetupState extends State<Accountsetup> {
   final finstance = FirebaseAuth.instance;
 
   late PageController _pageController;
+
+    
+
+  Future<void> _getImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      if (pickedFile != null) {
+        _imageFile = File(pickedFile.path);
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -43,6 +60,8 @@ class _AccountsetupState extends State<Accountsetup> {
   @override
   Widget build(BuildContext context) {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
+    Reference ref = FirebaseStorage.instance.ref().child('ProfilePictures/');
+    final storageref = FirebaseStorage.instance.ref();
 
     Object dateparser(datestring) {
       DateFormat inputFormat = DateFormat('dd/MM/yyyy');
@@ -60,21 +79,40 @@ class _AccountsetupState extends State<Accountsetup> {
       }
     }
 
-    final RoundedLoadingButtonController btnController =
-        RoundedLoadingButtonController();
+  
 
-    Future<void> addUser() {
-      return users
-          .doc(FirebaseAuth.instance.currentUser?.uid)
-          .set({
-            'firstname': fname.text,
-            'lastname': lname.text,
-            'date_of_birth': dateparser(DOB.text),
-            'gender': selectedValue,
-          })
-          .then((value) => print("User Added"))
-          .catchError((error) => print("Failed to add user: $error"));
-    }
+Future<void> addUser() async {
+  if (_imageFile == null) {
+    // No image selected
+    return;
+  }
+
+  try {
+    // Upload the image to Firebase Storage
+    String? uid = FirebaseAuth.instance.currentUser?.uid;
+    UploadTask uploadTask = ref.child('images/$uid').putFile(_imageFile!);
+    await uploadTask;
+    print('Image uploaded successfully!');
+
+    // Add user data to Firestore after image upload is successful
+    await users
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .set({
+          'profile picture': ref.getDownloadURL(),
+          'firstname': fname.text,
+          'lastname': lname.text,
+          'date_of_birth': dateparser(DOB.text),
+          'gender': selectedValue,
+
+        })
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
+  } catch (e) {
+    print('Error uploading image or adding user: $e');
+  }
+}
+
+
 
     final List<String> items = ['Male', 'Female', 'Others'];
     DateTime? date;
@@ -117,13 +155,16 @@ class _AccountsetupState extends State<Accountsetup> {
                             style: TextStyle(fontSize: 15, color: Colors.grey),
                           ),
                         ),
-                        const Stack(
+                         Stack(
                           children: [
                             Align(
                               alignment: Alignment.topLeft,
-                              child: CircleAvatar(
+                              child: _imageFile == null ? CircleAvatar(
                                 radius: 50,
-                                backgroundImage: AssetImage('images/dp.jpg'),
+                                backgroundImage: AssetImage('images/dp.jpg') 
+                              ) :  CircleAvatar(
+                                radius: 50,
+                                backgroundImage: FileImage(_imageFile!)
                               ),
                             ),
                             Padding(
@@ -131,12 +172,16 @@ class _AccountsetupState extends State<Accountsetup> {
                               child: Positioned(
                                 left: 75,
                                 bottom: 3,
-                                child: CircleAvatar(
-                                  radius: 20,
-                                  backgroundColor: Colors.red,
-                                  child: Icon(
-                                    Icons.edit,
-                                    color: Colors.white,
+                                child: InkWell(
+                                  
+                                  onTap: _getImage,
+                                  child: CircleAvatar(
+                                    radius: 20,
+                                    backgroundColor: Colors.red,
+                                    child: Icon(
+                                      Icons.edit,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -242,45 +287,43 @@ class _AccountsetupState extends State<Accountsetup> {
                           ),
                         ),
                         // Display the selected gender
+                              EasyButton(
+  type: EasyButtonType.elevated,
 
-                        RoundedLoadingButton(
-                          height: 60,
-                          borderRadius: 15,
-                          color: Colors.red,
-                          controller: btnController,
-                          onPressed: () {
-                            if (selectedValue == null ||
-                                DOB.text.isEmpty ||
-                                fname.text.isEmpty ||
-                                lname.text.isEmpty) {
-                              btnController.reset();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Fill all the field'),
-                                  duration: Duration(milliseconds: 300),
-                                ),
-                              );
-                            } else {
-                              try {
-                                users.doc(finstance.currentUser?.uid).set({
-                                  'firstname': fname.text,
-                                  'lastname': lname.text,
-                                  'date_of_birth': dateparser(DOB.text),
-                                  'gender': selectedValue,
-                                });
-                                Navigator.push(
-                                    context,
-                                    PageTransition(
-                                        type: PageTransitionType.rightToLeft,
-                                        duration:
-                                            const Duration(milliseconds: 200),
-                                        child: const Accountsetup()));
-                              } catch (e) {}
-                            }
-                          },
-                          child: const Text('Tap me!',
-                              style: TextStyle(color: Colors.white)),
-                        ),
+  // Content inside the button when the button state is idle.
+  idleStateWidget: const Text(
+    'Submit',
+    style: TextStyle(
+      color: Colors.white,
+    ),
+  ),
+  loadingStateWidget: const CircularProgressIndicator(
+    strokeWidth: 3.0,
+    valueColor: AlwaysStoppedAnimation<Color>(
+      Colors.white,
+    ),
+  ),
+
+  useWidthAnimation: true,
+
+
+  useEqualLoadingStateWidgetDimension: true,
+
+
+  width: 50.0,
+  height: 40.0,
+  borderRadius: 16.0,
+  elevation: 3.0,
+
+
+  contentGap: 6.0,
+  buttonColor: const Color.fromARGB(255, 233, 16, 0),
+
+  onPressed: () async {
+    await addUser();
+  },
+),
+                    
                       ],
                     ),
                   ),
