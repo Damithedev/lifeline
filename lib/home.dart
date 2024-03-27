@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -6,11 +9,31 @@ import 'package:geolocator/geolocator.dart';
 import 'package:lifeline/components/loacate.dart';
 
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
   @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+
+
+      CollectionReference users = FirebaseFirestore.instance.collection('users');
+       String? uid = FirebaseAuth.instance.currentUser?.uid;
+  dynamic imgurl;
+      void getuserdata() async{
+ DocumentSnapshot userdata =  await users.doc(uid).get();
+ 
+ setState(() {
+   imgurl = userdata['profile picture'];
+ }); 
+      }
+  @override
   Widget build(BuildContext context) {
+
+      
+      
     return FutureBuilder<String>(
       future: getLocationName(),
       builder: (context, snapshot) {
@@ -48,10 +71,14 @@ class Home extends StatelessWidget {
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                   Expanded(child: SizedBox()),
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 20,
-                  ),
+                  imgurl == null ? CircleAvatar(
+                                radius: 20,
+                                backgroundImage: AssetImage('images/dp.jpg') 
+                              ) :  CircleAvatar(
+                                radius: 20,
+                                backgroundImage: NetworkImage(imgurl.toString())
+                              ),
+                            
                 ],
               ),
             ),
@@ -109,5 +136,14 @@ class Home extends StatelessWidget {
         }
       },
     );
+  }
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getuserdata();
+    
   }
 }

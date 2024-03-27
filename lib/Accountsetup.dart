@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:intl/intl.dart';
+import 'package:lifeline/home.dart';
 import 'package:page_transition/page_transition.dart';
 import 'auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -91,24 +92,41 @@ Future<void> addUser() async {
     // Upload the image to Firebase Storage
     String? uid = FirebaseAuth.instance.currentUser?.uid;
     UploadTask uploadTask = ref.child('images/$uid').putFile(_imageFile!);
-    await uploadTask;
+     TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
+    String downloadUrl = await snapshot.ref.getDownloadURL();
     print('Image uploaded successfully!');
 
     // Add user data to Firestore after image upload is successful
     await users
         .doc(FirebaseAuth.instance.currentUser?.uid)
         .set({
-          'profile picture': ref.getDownloadURL(),
+          'profile picture': downloadUrl,
           'firstname': fname.text,
           'lastname': lname.text,
           'date_of_birth': dateparser(DOB.text),
           'gender': selectedValue,
 
         })
-        .then((value) => print("User Added"))
-        .catchError((error) => print("Failed to add user: $error"));
-  } catch (e) {
-    print('Error uploading image or adding user: $e');
+        .then((value) =>  Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      ))
+        .catchError((error) =>  ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text("Failed to add user: $error")),
+                                      ));
+  } on TimeoutException catch (e){
+     ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text('Upload task timed out: $e'),
+                                      ));
+  }
+  
+  catch (e) {
+    ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text('Error uploading image or adding user: $e'),
+                                      ));
   }
 }
 
