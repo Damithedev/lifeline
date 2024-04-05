@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lifeline/home.dart';
 import 'package:lifeline/onboarding.dart';
 import 'package:lottie/lottie.dart';
 
@@ -10,16 +12,31 @@ class Splashscreen extends StatefulWidget {
 }
 
 class _SplashscreenState extends State<Splashscreen> {
+  bool isauth = false;
+   var user = FirebaseAuth.instance.currentUser ;
+   
+ 
   @override
   void initState() {
     super.initState();
+    if (user != null){
+      isauth = true;
+    }
 
     // Introducing a 3-second delay before navigating to the main screen
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
+       if (user != null){
+       Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      );
+    }
+     else{
+       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const onboard()),
       );
+     }
     });
   }
 

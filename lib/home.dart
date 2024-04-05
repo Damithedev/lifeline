@@ -40,6 +40,7 @@ class _HomeState extends State<Home> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(
+              automaticallyImplyLeading: false,
               title: Text('Fetching Location...'),
               centerTitle: true,
             ),
@@ -50,6 +51,7 @@ class _HomeState extends State<Home> {
         } else if (snapshot.hasError) {
           return Scaffold(
             appBar: AppBar(
+              automaticallyImplyLeading: false,
               title: Text('Error'),
               centerTitle: true,
             ),
@@ -61,6 +63,7 @@ class _HomeState extends State<Home> {
          String? loacationname = snapshot.data;
           return Scaffold(
             appBar: AppBar(
+              automaticallyImplyLeading: false,
               backgroundColor: Colors.transparent,
               title: Row(
                 children: [
