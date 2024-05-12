@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:date_format_field/date_format_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -33,6 +34,7 @@ class _AccountsetupState extends State<Accountsetup> {
   final finstance = FirebaseAuth.instance;
 
   late PageController _pageController;
+   final messaging = FirebaseMessaging.instance;
 
     
 
@@ -61,9 +63,10 @@ class _AccountsetupState extends State<Accountsetup> {
   @override
   Widget build(BuildContext context) {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
+   
     Reference ref = FirebaseStorage.instance.ref().child('ProfilePictures/');
     final storageref = FirebaseStorage.instance.ref();
-
+  
     Object dateparser(datestring) {
       DateFormat inputFormat = DateFormat('dd/MM/yyyy');
 
@@ -95,6 +98,7 @@ Future<void> addUser() async {
      TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
     String downloadUrl = await snapshot.ref.getDownloadURL();
     print('Image uploaded successfully!');
+    String? token = await messaging.getToken();
 
     // Add user data to Firestore after image upload is successful
     await users
@@ -103,9 +107,11 @@ Future<void> addUser() async {
           'profile picture': downloadUrl,
           'firstname': fname.text,
           'lastname': lname.text,
+          'FCM':token,
+          'uid': uid,
           'date_of_birth': dateparser(DOB.text),
           'gender': selectedValue,
-
+         
         })
         .then((value) =>  Navigator.pushReplacement(
         context,
@@ -174,38 +180,35 @@ Future<void> addUser() async {
                           ),
                         ),
                          Stack(
-                          children: [
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: _imageFile == null ? CircleAvatar(
-                                radius: 50,
-                                backgroundImage: AssetImage('images/dp.jpg') 
-                              ) :  CircleAvatar(
-                                radius: 50,
-                                backgroundImage: FileImage(_imageFile!)
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              child: Positioned(
-                                left: 75,
-                                bottom: 3,
-                                child: InkWell(
-                                  
-                                  onTap: _getImage,
-                                  child: CircleAvatar(
-                                    radius: 20,
-                                    backgroundColor: Colors.red,
-                                    child: Icon(
-                                      Icons.edit,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+  children: [
+    Align(
+      alignment: Alignment.topLeft,
+      child: _imageFile == null ? CircleAvatar(
+        radius: 50,
+        backgroundImage: AssetImage('images/dp.jpg') 
+      ) :  CircleAvatar(
+        radius: 50,
+        backgroundImage: FileImage(_imageFile!)
+      ),
+    ),
+    Positioned(
+      left: 75,
+      bottom: 3,
+      child: InkWell(
+        onTap: _getImage,
+        child: CircleAvatar(
+          radius: 20,
+          backgroundColor: Colors.red,
+          child: Icon(
+            Icons.edit,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    ),
+  ],
+),
+
                         xInputfield(
                             label: 'First Name',
                             Hinttext: 'Enter First Name',

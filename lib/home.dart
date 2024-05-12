@@ -22,12 +22,17 @@ class _HomeState extends State<Home> {
       CollectionReference users = FirebaseFirestore.instance.collection('users');
        String? uid = FirebaseAuth.instance.currentUser?.uid;
   dynamic imgurl;
+  dynamic Longtitude;
+  dynamic Latitude;
       void getuserdata() async{
  DocumentSnapshot userdata =  await users.doc(uid).get();
  
- setState(() {
+
    imgurl = userdata['profile picture'];
- }); 
+   Longtitude = userdata['lng'];
+   Latitude = userdata['lat'];
+ 
+ print(Latitude);
       }
   @override
   Widget build(BuildContext context) {
@@ -35,8 +40,9 @@ class _HomeState extends State<Home> {
       
       
     return FutureBuilder<String>(
-      future: getLocationName(),
+      future: getLocationName(users),
       builder: (context, snapshot) {
+getuserdata();
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(
@@ -61,6 +67,7 @@ class _HomeState extends State<Home> {
           );
         } else {
          String? loacationname = snapshot.data;
+         
           return Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,
@@ -102,23 +109,31 @@ class _HomeState extends State<Home> {
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.grey),
                   ),
                 Expanded(child: SizedBox()),
-                 Stack(
-                   children: [
-                     CircleAvatar(
-                      backgroundColor: const Color.fromARGB(105, 117, 117, 117),
-                      radius: 120,
-                     
-                     ),
-                     Positioned(
-                      left: 10,
-                      top: 10,
-                       child: CircleAvatar(
-                        backgroundColor: const Color.fromARGB(255, 233, 16, 0),
-                        radius: 110,
-                        child: Center(child: Icon(Icons.add, color: Colors.white, size: 95,),),
+                 InkWell(
+                  onTap: () async{
+                   print(
+                    await getNearbyUsers(Longtitude, Latitude)
+                   ) ;
+
+                  },
+                   child: Stack(
+                     children: [
+                       CircleAvatar(
+                        backgroundColor: const Color.fromARGB(105, 117, 117, 117),
+                        radius: 120,
+                       
                        ),
-                     ),
-                   ],
+                       Positioned(
+                        left: 10,
+                        top: 10,
+                         child: CircleAvatar(
+                          backgroundColor: const Color.fromARGB(255, 233, 16, 0),
+                          radius: 110,
+                          child: Center(child: Icon(Icons.add, color: Colors.white, size: 95,),),
+                         ),
+                       ),
+                     ],
+                   ),
                  ),
                  Expanded(child: SizedBox()),
                   Text(
@@ -146,7 +161,7 @@ class _HomeState extends State<Home> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getuserdata();
+    
     
   }
 }

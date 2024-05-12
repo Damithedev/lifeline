@@ -1,6 +1,11 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_geo_hash/geohash.dart';
+import 'package:http/http.dart' as http;
 /// Determine the current position of the device.
 ///
 /// When the location services are not enabled or permissions
@@ -40,11 +45,17 @@ Future<Position> determinePosition() async {
 
 
 
-  Future<String> getLocationName() async {
+  Future<String> getLocationName(CollectionReference userref) async {
   Position position = await determinePosition();
     if (position != null) {
       double latitude = position.latitude;
       double longitude = position.longitude;
+      
+      userref.doc(FirebaseAuth.instance.currentUser?.uid).update({
+      
+        'lat': latitude,
+        'lng': longitude,
+      });
 
       try {
         List<Placemark> placemarks =
@@ -62,3 +73,42 @@ Future<Position> determinePosition() async {
     }
     return "Error in getting location try again";
   }
+Future<List<User>> getNearbyUsers(double longitude, double latitude) async {
+  final response = await http.get(Uri.parse('https://getclosebyusers-api.onrender.com/nearby?longitude=$longitude&latitude=$latitude'));
+
+  if (response.statusCode == 200) {
+    // If the server returns a 200 OK response, parse the JSON.
+    print("Good response");
+    List<dynamic> jsonList = jsonDecode(response.body);
+    List<User> users = jsonList.map((json) =>  User.fromJson(json)).toList();
+    print( await users);
+    return users;
+  } else {
+    // If the server does not return a 200 OK response, throw an exception.
+    throw Exception('Failed to load users');
+  }
+}
+
+class User {
+
+  final String fcmToken;
+  final String uid;
+
+  const User({
+  
+    required this.fcmToken,
+    required this.uid,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      fcmToken: json['FCM'] as String,
+      uid: json['uid'] as String,
+    );
+  }
+
+   @override
+  String toString() {
+    return 'User{fcmToken: $fcmToken, uid: $uid}';
+  }
+}
