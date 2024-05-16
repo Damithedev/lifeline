@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:lifeline/Accountsetup.dart';
+import 'package:lifeline/auth.dart';
+import 'package:lifeline/help.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -90,7 +92,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home:  Splashscreen(),
+      home:  Home(),
     );
   } 
 }

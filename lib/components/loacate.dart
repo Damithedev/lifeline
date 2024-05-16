@@ -1,15 +1,22 @@
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_geo_hash/geohash.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_messaging/firebase_messaging.dart';
 /// Determine the current position of the device.
 ///
 /// When the location services are not enabled or permissions
 /// are denied the `Future` will return an error.
+/// 
+ CollectionReference users = FirebaseFirestore.instance.collection('users');
+ final messaging = FirebaseMessaging.instance;
+ String? uid = FirebaseAuth.instance.currentUser?.uid;
 Future<Position> determinePosition() async {
   bool serviceEnabled;
   LocationPermission permission;
@@ -50,9 +57,9 @@ Future<Position> determinePosition() async {
     if (position != null) {
       double latitude = position.latitude;
       double longitude = position.longitude;
-      
-      userref.doc(FirebaseAuth.instance.currentUser?.uid).update({
-      
+      String? token = await messaging.getToken();
+      userref.doc(uid).update({
+        'FCM': token,
         'lat': latitude,
         'lng': longitude,
       });
@@ -73,21 +80,28 @@ Future<Position> determinePosition() async {
     }
     return "Error in getting location try again";
   }
-Future<List<User>> getNearbyUsers(double longitude, double latitude) async {
-  final response = await http.get(Uri.parse('https://getclosebyusers-api.onrender.com/nearby?longitude=$longitude&latitude=$latitude'));
+Future<List<User>> getNearbyUsers(double longitude, double latitude ) async {
+  try {
+    final response = await http.get(Uri.parse('https://getclosebyusers-api.onrender.com/nearby?longitude=$longitude&latitude=$latitude&uid=$uid'))
+        .timeout(Duration(milliseconds: 60000));
 
-  if (response.statusCode == 200) {
-    // If the server returns a 200 OK response, parse the JSON.
-    print("Good response");
-    List<dynamic> jsonList = jsonDecode(response.body);
-    List<User> users = jsonList.map((json) =>  User.fromJson(json)).toList();
-    print( await users);
-    return users;
-  } else {
-    // If the server does not return a 200 OK response, throw an exception.
-    throw Exception('Failed to load users');
+    if (response.statusCode == 200) {
+      List<dynamic> jsonList = jsonDecode(response.body);
+      List<User> users = jsonList.map((json) => User.fromJson(json)).toList();
+      return users;
+    } else {
+      // If the server returns an error response, log the response body for debugging.
+      print('Error: ${response.statusCode}');
+      print('Response: ${response.body}');
+      throw Exception('Failed to get nearby users');
+    }
+  } catch (e) {
+    // Handle timeout or other network-related errors.
+    print('Network error: $e');
+    throw Exception('Failed to connect to server');
   }
 }
+
 
 class User {
 

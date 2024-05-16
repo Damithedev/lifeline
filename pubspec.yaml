@@ -55,6 +55,7 @@ dependencies:
   rxdart: ^0.27.7
   flutter_geo_hash: ^0.0.4
   http: ^1.2.1
+  animated_text_kit: ^4.2.2
 
 dev_dependencies:
   flutter_test:
@@ -86,7 +87,9 @@ flutter:
     - images/onb3.png
     - images/onbg.png
     - images/logotxt.png
+    - images/location.json
     - images/loadanimation.json
+    - images/scan.json
     - images/dp.jpg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

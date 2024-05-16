@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'package:lifeline/components/loacate.dart';
+import 'package:lifeline/help.dart';
 
 
 class Home extends StatefulWidget {
@@ -42,8 +43,9 @@ class _HomeState extends State<Home> {
     return FutureBuilder<String>(
       future: getLocationName(users),
       builder: (context, snapshot) {
-getuserdata();
+ getuserdata();
         if (snapshot.connectionState == ConnectionState.waiting) {
+          
           return Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,
@@ -111,9 +113,27 @@ getuserdata();
                 Expanded(child: SizedBox()),
                  InkWell(
                   onTap: () async{
-                   print(
-                    await getNearbyUsers(Longtitude, Latitude)
-                   ) ;
+                    Navigator.of(context).push(
+  PageRouteBuilder(
+    transitionDuration: Duration(milliseconds: 800), // Forward Duration
+    reverseTransitionDuration: Duration(milliseconds: 800), // Reverse Duration
+    pageBuilder: (BuildContext context,
+        Animation<double> animation,
+        Animation<double> secondaryAnimation) {
+      return Scanpage(Latitude: Latitude, Longtitude: Longtitude,);
+    },
+    transitionsBuilder: (BuildContext context,
+        Animation<double> animation,
+        Animation<double> secondaryAnimation,
+        Widget child) {
+      return FadeTransition(
+        opacity: animation,
+        child: child,
+      );
+    },
+  ),
+);
+                 
 
                   },
                    child: Stack(
@@ -126,10 +146,13 @@ getuserdata();
                        Positioned(
                         left: 10,
                         top: 10,
-                         child: CircleAvatar(
-                          backgroundColor: const Color.fromARGB(255, 233, 16, 0),
-                          radius: 110,
-                          child: Center(child: Icon(Icons.add, color: Colors.white, size: 95,),),
+                         child: Hero(
+                          tag: 'mainbtn',
+                           child: CircleAvatar(
+                            backgroundColor: const Color.fromARGB(255, 233, 16, 0),
+                            radius: 110,
+                            child: Center(child: Icon(Icons.add, color: Colors.white, size: 95,),),
+                           ),
                          ),
                        ),
                      ],
