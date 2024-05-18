@@ -6,6 +6,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:lifeline/Accountsetup.dart';
 import 'package:lifeline/Respond.dart';
 import 'package:lifeline/Splashscreen.dart';
+import 'package:lifeline/components/loacate.dart';
+import 'package:lifeline/onboarding.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'firebase_options.dart';
@@ -82,10 +84,10 @@ Future<void> _initializeFirebaseMessaging() async {
 void _handleMessageNavigation(RemoteMessage message) {
   final data = message.data;
   if (data['route'] == 'Responder') {
-
+String uid = data['uid'].toString();
     Navigator.push(
       MyApp.navigatorKey.currentState!.context,
-      MaterialPageRoute(builder: (context) => const Accountsetup()),
+      MaterialPageRoute(builder: (context) =>  Responder(uid: uid, distance: 22,)),
     );
   }
 }
@@ -118,7 +120,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: const Responder(uid: 'hhdh',),
+      home: const Splashscreen(),
       navigatorKey: navigatorKey,
     );
   }

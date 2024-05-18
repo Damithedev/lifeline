@@ -125,3 +125,18 @@ Future<Map> getuserdata() async{
  DocumentSnapshot userdata =  await users.doc(uid).get();
    return {'imgurl': userdata['profile picture'], 'Longtitude': userdata['lng'], 'Latitude': userdata['lat']};
       }
+
+
+Future<String> getLocationNameside(double lat, double long) async {
+  try {
+    List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
+    if (placemarks.isNotEmpty) {
+      Placemark place = placemarks[0];
+      return "${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
+    }
+    return "No address available";
+  } catch (e) {
+    print(e);
+    return "Error: Unable to get address";
+  }
+}
