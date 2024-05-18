@@ -56,7 +56,7 @@ class _ScanpageState extends State<Scanpage> {
                    child: Stack(
                      children: [
                        Lottie.asset('images/scan.json', width: double.infinity),
-                       Positioned.fill(
+                       const Positioned.fill(
                       child: Align(
         alignment: Alignment.center,
                          child: Hero(
@@ -71,9 +71,9 @@ class _ScanpageState extends State<Scanpage> {
                      ],
                    ),
                  ),
-                 Expanded(child: SizedBox()),
+                 const Expanded(child: SizedBox()),
                   
-  Expanded(child: SizedBox()),
+  const Expanded(child: SizedBox()),
                 ],
               ),
             ),

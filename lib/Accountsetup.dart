@@ -8,8 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:intl/intl.dart';
-import 'package:lifeline/home.dart';
-import 'package:page_transition/page_transition.dart';
+import 'package:lifeline/Splashscreen.dart';
 import 'auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -115,7 +114,7 @@ Future<void> addUser() async {
         })
         .then((value) =>  Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const Home()),
+        MaterialPageRoute(builder: (context) => const Splashscreen()),
       ))
         .catchError((error) =>  ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(
@@ -183,7 +182,7 @@ Future<void> addUser() async {
   children: [
     Align(
       alignment: Alignment.topLeft,
-      child: _imageFile == null ? CircleAvatar(
+      child: _imageFile == null ? const CircleAvatar(
         radius: 50,
         backgroundImage: AssetImage('images/dp.jpg') 
       ) :  CircleAvatar(
@@ -196,7 +195,7 @@ Future<void> addUser() async {
       bottom: 3,
       child: InkWell(
         onTap: _getImage,
-        child: CircleAvatar(
+        child: const CircleAvatar(
           radius: 20,
           backgroundColor: Colors.red,
           child: Icon(

@@ -1,126 +1,70 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:geolocator/geolocator.dart';
 
-import 'package:lifeline/components/loacate.dart';
 import 'package:lifeline/help.dart';
 
-
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  String locationname;
+  Map userdata;
+  Home({super.key, required this.locationname, required this.userdata});
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-
-
-      CollectionReference users = FirebaseFirestore.instance.collection('users');
-       String? uid = FirebaseAuth.instance.currentUser?.uid;
-  dynamic imgurl;
-  dynamic Longtitude;
-  dynamic Latitude;
-      void getuserdata() async{
- DocumentSnapshot userdata =  await users.doc(uid).get();
- 
-
-   imgurl = userdata['profile picture'];
-   Longtitude = userdata['lng'];
-   Latitude = userdata['lat'];
- 
- print(Latitude);
-      }
   @override
   Widget build(BuildContext context) {
-
-      
-      
-    return FutureBuilder<String>(
-      future: getLocationName(users),
-      builder: (context, snapshot) {
- getuserdata();
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          
-          return Scaffold(
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              title: Text('Fetching Location...'),
-              centerTitle: true,
-            ),
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        } else if (snapshot.hasError) {
-          return Scaffold(
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              title: Text('Error'),
-              centerTitle: true,
-            ),
-            body: Center(
-              child: Text('Error: ${snapshot.error}'),
-            ),
-          );
-        } else {
-         String? loacationname = snapshot.data;
-         
-          return Scaffold(
+    return Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,
               backgroundColor: Colors.transparent,
               title: Row(
                 children: [
-                  Icon(Icons.location_on, color: Colors.red),
-                  SizedBox(width: 20),
+                  const Icon(Icons.location_on, color: Colors.red),
+                  const SizedBox(width: 20),
                   Text(
-                    loacationname!,
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    widget.locationname,
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
-                  Expanded(child: SizedBox()),
-                  imgurl == null ? CircleAvatar(
+                  const Expanded(child: SizedBox()),
+                  widget.userdata['imgurl'] == null ? const CircleAvatar(
                                 radius: 20,
                                 backgroundImage: AssetImage('images/dp.jpg') 
                               ) :  CircleAvatar(
                                 radius: 20,
-                                backgroundImage: NetworkImage(imgurl.toString())
+                                backgroundImage: NetworkImage(widget.userdata['imgurl'].toString())
                               ),
                             
                 ],
               ),
             ),
-            backgroundColor: Color.fromARGB(227, 245, 245, 255),
+            backgroundColor: const Color.fromARGB(227, 245, 245, 255),
             body: Center(
               child: Column(
                 
                 children: [
-                  SizedBox(height: 15),
-                  Text(
+                  const SizedBox(height: 15),
+                  const Text(
                     "Need Emergency Health \n  Services?",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
                   ),
-                  Text(
+                  const Text(
                     "Just hold the button to call",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.grey),
                   ),
-                Expanded(child: SizedBox()),
+                const Expanded(child: SizedBox()),
                  InkWell(
                   onTap: () async{
                     Navigator.of(context).push(
   PageRouteBuilder(
-    transitionDuration: Duration(milliseconds: 800), // Forward Duration
-    reverseTransitionDuration: Duration(milliseconds: 800), // Reverse Duration
+    transitionDuration: const Duration(milliseconds: 800), // Forward Duration
+    reverseTransitionDuration: const Duration(milliseconds: 800), // Reverse Duration
     pageBuilder: (BuildContext context,
         Animation<double> animation,
         Animation<double> secondaryAnimation) {
-      return Scanpage(Latitude: Latitude, Longtitude: Longtitude,);
+      return Scanpage(Latitude: widget.userdata['Latitude'] , Longtitude: widget.userdata['Longtitude'],);
     },
     transitionsBuilder: (BuildContext context,
         Animation<double> animation,
@@ -136,10 +80,10 @@ class _HomeState extends State<Home> {
                  
 
                   },
-                   child: Stack(
+                   child: const Stack(
                      children: [
                        CircleAvatar(
-                        backgroundColor: const Color.fromARGB(105, 117, 117, 117),
+                        backgroundColor: Color.fromARGB(105, 117, 117, 117),
                         radius: 120,
                        
                        ),
@@ -149,7 +93,7 @@ class _HomeState extends State<Home> {
                          child: Hero(
                           tag: 'mainbtn',
                            child: CircleAvatar(
-                            backgroundColor: const Color.fromARGB(255, 233, 16, 0),
+                            backgroundColor: Color.fromARGB(255, 233, 16, 0),
                             radius: 110,
                             child: Center(child: Icon(Icons.add, color: Colors.white, size: 95,),),
                            ),
@@ -158,33 +102,21 @@ class _HomeState extends State<Home> {
                      ],
                    ),
                  ),
-                 Expanded(child: SizedBox()),
-                  Text(
+                 const Expanded(child: SizedBox()),
+                  const Text(
                     "Or",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.grey),
                   ),
-                   Text(
+                   const Text(
                     "Emergency Call",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color:  Color.fromARGB(255, 233, 16, 0),),
                   ),
-  Expanded(child: SizedBox()),
+  const Expanded(child: SizedBox()),
                 ],
               ),
             ),
           );
-        }
-      },
-    );
-  }
-
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    
-    
   }
 }

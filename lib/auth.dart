@@ -349,7 +349,7 @@ class Login extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     final password = TextEditingController();
     final email = TextEditingController();
     return Scaffold(
@@ -372,7 +372,7 @@ class Login extends StatelessWidget {
               ),
               Expanded(
                 child: Form(
-                  key: _formKey,
+                  key: formKey,
 
                   child: ListView(children: [
                     const SizedBox(
@@ -441,7 +441,7 @@ class Login extends StatelessWidget {
                         ),
                         child: TextButton(
                           onPressed: () async {
-                             if (_formKey.currentState!.validate()) {
+                             if (formKey.currentState!.validate()) {
                                     try {
                              await FirebaseAuth.instance.signInWithEmailAndPassword(email: email.text, password: password.text)  .then((value) {
                                         

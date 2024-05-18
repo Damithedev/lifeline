@@ -1,12 +1,9 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_geo_hash/geohash.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_messaging/firebase_messaging.dart';
 /// Determine the current position of the device.
@@ -52,38 +49,36 @@ Future<Position> determinePosition() async {
 
 
 
-  Future<String> getLocationName(CollectionReference userref) async {
+  Future<String> getLocationName() async {
   Position position = await determinePosition();
-    if (position != null) {
-      double latitude = position.latitude;
-      double longitude = position.longitude;
-      String? token = await messaging.getToken();
-      userref.doc(uid).update({
-        'FCM': token,
-        'lat': latitude,
-        'lng': longitude,
-      });
+    double latitude = position.latitude;
+    double longitude = position.longitude;
+    String? token = await messaging.getToken();
+    users.doc(uid).update({
+      'FCM': token,
+      'lat': latitude,
+      'lng': longitude,
+    });
 
-      try {
-        List<Placemark> placemarks =
-            await placemarkFromCoordinates(latitude, longitude);
-        if (placemarks != null && placemarks.isNotEmpty) {
-          Placemark placemark = placemarks[0];
-          return "${placemark.locality}, ${placemark.administrativeArea}, ${placemark.country}";
-        } else {
-          return "Unknown Location";
-        }
-      } catch (e) {
-        print('Error: $e');
+    try {
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark placemark = placemarks[0];
+        return "${placemark.locality}, ${placemark.administrativeArea}, ${placemark.country}";
+      } else {
         return "Unknown Location";
       }
+    } catch (e) {
+      print('Error: $e');
+      return "Unknown Location";
     }
-    return "Error in getting location try again";
+      return "Error in getting location try again";
   }
 Future<List<User>> getNearbyUsers(double longitude, double latitude ) async {
   try {
     final response = await http.get(Uri.parse('https://getclosebyusers-api.onrender.com/nearby?longitude=$longitude&latitude=$latitude&uid=$uid'))
-        .timeout(Duration(milliseconds: 60000));
+        .timeout(const Duration(milliseconds: 60000));
 
     if (response.statusCode == 200) {
       List<dynamic> jsonList = jsonDecode(response.body);
@@ -126,3 +121,7 @@ class User {
     return 'User{fcmToken: $fcmToken, uid: $uid}';
   }
 }
+Future<Map> getuserdata() async{
+ DocumentSnapshot userdata =  await users.doc(uid).get();
+   return {'imgurl': userdata['profile picture'], 'Longtitude': userdata['lng'], 'Latitude': userdata['lat']};
+      }
