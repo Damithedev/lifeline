@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:lifeline/Accountsetup.dart';
+import 'package:lifeline/Respond.dart';
 import 'package:lifeline/Splashscreen.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -117,7 +118,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: const Splashscreen(),
+      home: const Responder(uid: 'hhdh',),
       navigatorKey: navigatorKey,
     );
   }

@@ -91,6 +91,9 @@ flutter:
     - images/loadanimation.json
     - images/scan.json
     - images/dp.jpg
+    - images/firstaid.jpeg
+    - images/drive.jpeg
+    - images/call.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
