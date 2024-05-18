@@ -9,7 +9,7 @@ import 'package:lifeline/Splashscreen.dart';
 import 'package:lifeline/components/loacate.dart';
 import 'package:lifeline/onboarding.dart';
 import 'package:rxdart/rxdart.dart';
-
+  
 import 'firebase_options.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -85,9 +85,10 @@ void _handleMessageNavigation(RemoteMessage message) {
   final data = message.data;
   if (data['route'] == 'Responder') {
 String uid = data['uid'].toString();
+double distance = double.parse(data['distance']);
     Navigator.push(
       MyApp.navigatorKey.currentState!.context,
-      MaterialPageRoute(builder: (context) =>  Responder(uid: uid, distance: 22,)),
+      MaterialPageRoute(builder: (context) =>  Responder(uid: uid, distance: distance,)),
     );
   }
 }
