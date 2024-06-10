@@ -38,10 +38,11 @@ Lifeline is a hyperlocal emergency response mobile application designed to impro
 - Download the `GoogleService-Info.plist` file and place it in the `ios/Runner` directory of your project.
 
 4. **Run the App**
-```sh
-flutter run
+   ```sh
+   flutter run
 
-# Usage
+
+ ###Usage
 
 ## Sign Up / Log In
 Users can sign up or log in using their email.
