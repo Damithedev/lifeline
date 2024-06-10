@@ -40,3 +40,38 @@ Lifeline is a hyperlocal emergency response mobile application designed to impro
 4. **Run the App**
 ```sh
 flutter run
+
+# Usage
+
+## Sign Up / Log In
+Users can sign up or log in using their email.
+
+## Send Distress Signal
+Click on the emergency button to send a distress signal.
+
+## Receive Help
+Users nearby will receive your distress signal and can offer assistance.
+
+## Offer Help
+If you receive a distress signal, you can choose to offer help through various options available in the app.
+
+# Contributing
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Make your changes.
+4. Commit your changes (`git commit -m 'Add some feature'`).
+5. Push to the branch (`git push origin feature-branch`).
+6. Open a pull request.
+
+# License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+# Contact
+For any questions or suggestions, feel free to reach out:
+
+- Email: [adamidogo@gmail.com](mailto:adamidogo@gmail.com)
+- GitHub: [damithedev](https://github.com/damithedev)
+
+Thank you for using Lifeline!
