@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:intl/intl.dart';
 import 'package:lifeline/Splashscreen.dart';
+import 'package:lifeline/components/loacate.dart';
 import 'auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -128,9 +129,11 @@ Future<void> addUser() async {
   }
   
   catch (e) {
+    print(e);
     ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(
                                         content: Text('Error uploading image or adding user: $e'),
+
                                       ));
   }
 }
@@ -340,6 +343,7 @@ Future<void> addUser() async {
   buttonColor: const Color.fromARGB(255, 233, 16, 0),
 
   onPressed: () async {
+    print(uid);
     await addUser();
   },
 ),

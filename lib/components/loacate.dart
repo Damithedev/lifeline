@@ -1,16 +1,20 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_messaging/firebase_messaging.dart';
-/// Determine the current position of the device.
-///
-/// When the location services are not enabled or permissions
-/// are denied the `Future` will return an error.
-/// 
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+
+
+
+
+
+
  CollectionReference users = FirebaseFirestore.instance.collection('users');
  final messaging = FirebaseMessaging.instance;
  String? uid = FirebaseAuth.instance.currentUser?.uid;
@@ -49,6 +53,14 @@ Future<Position> determinePosition() async {
 
 
 
+
+
+
+
+
+
+
+
   Future<String> getLocationName() async {
   Position position = await determinePosition();
     double latitude = position.latitude;
@@ -76,8 +88,10 @@ Future<Position> determinePosition() async {
       return "Error in getting location try again";
   }
 Future<List<User>> getNearbyUsers(double longitude, double latitude ) async {
+  String? base = dotenv.env["URL"];
+  print(base);
   try {
-    final response = await http.get(Uri.parse('https://getclosebyusers-api.onrender.com/nearby?longitude=$longitude&latitude=$latitude&uid=$uid'))
+    final response = await http.get(Uri.parse('$base/nearby?longitude=$longitude&latitude=$latitude&uid=$uid'))
         .timeout(const Duration(milliseconds: 60000));
 
     if (response.statusCode == 200) {
@@ -96,6 +110,20 @@ Future<List<User>> getNearbyUsers(double longitude, double latitude ) async {
     throw Exception('Failed to connect to server');
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class User {
@@ -121,10 +149,36 @@ class User {
     return 'User{fcmToken: $fcmToken, uid: $uid}';
   }
 }
+
+
+
+
+
+
+
+
+
+
+
 Future<Map> getuserdata() async{
  DocumentSnapshot userdata =  await users.doc(uid).get();
    return {'imgurl': userdata['profile picture'], 'Longtitude': userdata['lng'], 'Latitude': userdata['lat']};
       }
+
+
+
+Future<Map> getuserinfoo(uiddd) async{
+ DocumentSnapshot userdata =  await users.doc(uiddd).get();
+   return {'imgurl': userdata['profile picture'], 'name': userdata['firstname'] + " " +userdata["lastname"]};
+      }
+
+
+
+
+
+
+
+
 
 
 Future<String> getLocationNameside(double lat, double long) async {
@@ -140,3 +194,5 @@ Future<String> getLocationNameside(double lat, double long) async {
     return "Error: Unable to get address";
   }
 }
+
+
