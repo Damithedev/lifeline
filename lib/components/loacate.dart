@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -8,7 +7,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 
@@ -18,11 +18,13 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
  CollectionReference users = FirebaseFirestore.instance.collection('users');
  final messaging = FirebaseMessaging.instance;
  String? uid = FirebaseAuth.instance.currentUser?.uid;
+ List listofpoints = [];
 Future<Position> determinePosition() async {
   bool serviceEnabled;
   LocationPermission permission;
 
   // Test if location services are enabled.
+  
   serviceEnabled = await Geolocator.isLocationServiceEnabled();
   if (!serviceEnabled) {
     // Location services are not enabled don't continue
@@ -45,10 +47,17 @@ Future<Position> determinePosition() async {
     return Future.error(
       'Location permissions are permanently denied, we cannot request permissions.');
   } 
-
-  // When we reach here, permissions are granted and we can
-  // continue accessing the position of the device.
-  return await Geolocator.getCurrentPosition();
+ Position position = await Geolocator.getCurrentPosition();
+ final SharedPreferences prefs =  await SharedPreferences.getInstance();
+ await prefs.setDouble('latitude', position.latitude);
+ await prefs.setDouble('longitude', position.longitude);
+  users.doc(uid).update({
+    
+      'lat': position.latitude,
+      'lng': position.longitude,
+    });
+  
+  return position;
 }
 
 
@@ -89,7 +98,7 @@ Future<Position> determinePosition() async {
   }
 Future<List<User>> getNearbyUsers(double longitude, double latitude ) async {
   String? base = dotenv.env["URL"];
-  print(base);
+  print(base); 
   try {
     final response = await http.get(Uri.parse('$base/nearby?longitude=$longitude&latitude=$latitude&uid=$uid'))
         .timeout(const Duration(milliseconds: 60000));
@@ -167,7 +176,7 @@ Future<Map> getuserdata() async{
 
 
 
-Future<Map> getuserinfoo(uiddd) async{
+Future<Map<String, dynamic>> getuserinfoo(uiddd) async{
  DocumentSnapshot userdata =  await users.doc(uiddd).get();
    return {'imgurl': userdata['profile picture'], 'name': userdata['firstname'] + " " +userdata["lastname"]};
       }
@@ -195,4 +204,18 @@ Future<String> getLocationNameside(double lat, double long) async {
   }
 }
 
+
+Future<List<LatLng>> getroute(Position startpoint , Position endpoint) async {
+  var response = await http.get(Uri.parse("https://api.mapbox.com/directions/v5/mapbox/driving/${startpoint.longitude},${startpoint.latitude};${endpoint.longitude},${endpoint.latitude}?alternatives=false&geometries=geojson&language=en&overview=full&steps=true&access_token=pk.eyJ1IjoiZGFtaWxvbGE1NTUiLCJhIjoiY2x2dGllYm1pMTg2bzJpbnZ3cDQ2cWVhcCJ9.zcbC4fyWaZcf5LNeXUVmkA"));
+  if(response.statusCode == 200 ){
+      var data = jsonDecode(response.body);
+      listofpoints = data[0]['geometry']['coordinates'];
+      List<LatLng> points = listofpoints.map((e) => LatLng(e[1].toDouble(), e[0].toDouble())).toList();
+      return points;
+
+  }
+  else{
+    throw Exception('Failed to get route');
+  }
+}
 

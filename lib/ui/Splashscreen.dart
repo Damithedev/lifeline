@@ -1,12 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lifeline/components/loacate.dart';
-import 'package:lifeline/home.dart';
-import 'package:lifeline/onboarding.dart';
+import 'package:lifeline/rth.dart';
+import 'package:lifeline/ui/home.dart';
+import 'package:lifeline/ui/onboarding.dart';
 import 'package:lottie/lottie.dart';
 
 class Splashscreen extends StatelessWidget {
+
+  
   const Splashscreen({super.key});
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +35,16 @@ class Splashscreen extends StatelessWidget {
   Future<void> _initializeApp(BuildContext context) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-    
+     
+      
       String locationname = await getLocationName();
       Map userInfo = await getuserdata();
+      
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => Home(locationname: locationname, userdata: userInfo),
+          builder: (context) =>  Home(locationname: locationname, userdata: userInfo,),
         ),
       );
     } else {

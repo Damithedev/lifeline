@@ -58,6 +58,12 @@ dependencies:
   animated_text_kit: ^4.2.2
   socket_io_client: ^2.0.3+1
   flutter_dotenv: ^5.1.0
+  flutter_map: ^7.0.1
+  latlong2: ^0.9.1
+  getwidget: ^4.0.0
+  shared_preferences: ^2.2.3
+
+ 
 
 dev_dependencies:
   flutter_test:
@@ -97,6 +103,7 @@ flutter:
     - images/drive.jpeg
     - images/call.jpeg
     - .env
+    - images/location.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lifeline/auth.dart';
+import 'package:lifeline/ui/auth.dart';
 import 'package:page_transition/page_transition.dart';
 
 class onboard extends StatefulWidget {

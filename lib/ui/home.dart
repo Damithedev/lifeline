@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:lifeline/help.dart';
+import 'package:lifeline/ui/help.dart';
 
 class Home extends StatefulWidget {
   String locationname;
@@ -102,6 +102,7 @@ class _HomeState extends State<Home> {
                      ],
                    ),
                  ),
+                 
                  const Expanded(child: SizedBox()),
                   const Text(
                     "Or",

@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:lifeline/ui/Splashscreen.dart';
 import 'package:lifeline/components/loacate.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class Responder extends StatefulWidget {
   final String uid;
   final double distance;
-  Responder({Key? key, required this.uid, required this.distance}) : super(key: key);
+  const Responder({Key? key, required this.uid, required this.distance}) : super(key: key);
 
   @override
   State<Responder> createState() => _ResponderState();
@@ -58,7 +58,7 @@ class _ResponderState extends State<Responder> {
 
   
   void initializeSocket() {
-    socket = IO.io("http://10.0.2.2:7000", <String, dynamic>{
+    socket = IO.io("https://getclosebyusers-api.onrender.com", <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
       'query': {
@@ -68,7 +68,7 @@ class _ResponderState extends State<Responder> {
 
     // Handle connection
     socket.onConnect((_) {
-      
+      print(uid);
       
       print('Connected to socket');
     });
@@ -79,7 +79,7 @@ class _ResponderState extends State<Responder> {
     socket.onDisconnect((_) {
       print('Disconnected from socket');
     });
-
+  
     socket.onConnectError((err) {
       print('Connection error: $err');
     });
@@ -90,7 +90,14 @@ class _ResponderState extends State<Responder> {
 
     // Connect the socket
     socket.connect();
-  
+   socket.on('accept', (data) {
+    print("recieved");
+      Navigator.pushAndRemoveUntil(
+  context,
+  MaterialPageRoute(builder: (context) => const Splashscreen()),
+  (Route<dynamic> route) => false,
+);
+    },);
   }
 
   @override
@@ -105,11 +112,11 @@ class _ResponderState extends State<Responder> {
       future: getUserInfo(widget.uid),
       builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data == null) {
-          return Center(child: Text('User not found'));
+          return const Center(child: Text('User not found'));
         } else {
           Map<String, dynamic>? userInfo = snapshot.data;
           String fname = userInfo?['firstname'] ?? '';
@@ -121,11 +128,11 @@ class _ResponderState extends State<Responder> {
             future: getLocationName(lat, long),
             builder: (BuildContext context, AsyncSnapshot<String> locationSnapshot) {
               if (locationSnapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               } else if (locationSnapshot.hasError) {
                 return Center(child: Text('Error: ${locationSnapshot.error}'));
               } else if (!locationSnapshot.hasData || locationSnapshot.data == null) {
-                return Center(child: Text('Location not found'));
+                return const Center(child: Text('Location not found'));
               } else {
                 String locationName = locationSnapshot.data ?? 'Unknown location';
                 double distance = widget.distance;
@@ -135,32 +142,32 @@ class _ResponderState extends State<Responder> {
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                       children: [
-                        SizedBox(height: 50,),
+                        const SizedBox(height: 50,),
                         Align(
                           alignment: Alignment.bottomLeft,
                           child: Text(
                             "$fname $lname needs Help",
-                            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 20),
+                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 20),
                           ),
                         ),
                         Align(
                           alignment: Alignment.bottomLeft,
                           child: Text(
                             "$locationName ($distance miles Away)",
-                            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400, fontSize: 13),
+                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w400, fontSize: 13),
                           ),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         HelpOption('images/firstaid.jpeg', 'First Aid Service', (){}),
-                        Spacer(),
+                        const Spacer(),
                         HelpOption('images/drive.jpeg', 'Offer Ride to Hospital', (){
                             print("tap nigga");
                             showtimer("ride");
                           
                         }),
-                        Spacer(),
+                        const Spacer(),
                         HelpOption('images/call.jpeg', 'Call to Assist', (){}),
-                        Spacer(),
+                        const Spacer(),
                       ],
                     ),
                   ),
@@ -174,13 +181,15 @@ class _ResponderState extends State<Responder> {
   }
   
   Future<void> showtimer(String help) {
-    socket.emit('RTH', {"responderuid": widget.uid, "helpuid": widget.uid , "help": help});
+    socket.emit('RTH', {"responderuid": uid, "helpuid": widget.uid , "help": help, "distance": widget.distance});
+   
      return showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Sending request'),
+ 
+        return const AlertDialog(
+          title: Text('Sending request'),
           content: SizedBox(
             width: 50,
             height: 40,
@@ -206,18 +215,18 @@ Widget HelpOption(String imageLocation, String title, Function helpfunc) {
           height: 160,
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(31)),
+            borderRadius: const BorderRadius.all(Radius.circular(31)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.3),
                 spreadRadius: 4,
                 blurRadius: 5,
-                offset: Offset(0, 3), // changes position of shadow
+                offset: const Offset(0, 3), // changes position of shadow
               ),
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(31)), // Match the border radius
+            borderRadius: const BorderRadius.all(Radius.circular(31)), // Match the border radius
             child: Image.asset(
               imageLocation,
               fit: BoxFit.cover, // Use BoxFit.cover for better scaling
@@ -230,11 +239,11 @@ Widget HelpOption(String imageLocation, String title, Function helpfunc) {
           child: Container(
             height: 35,
             width: 100,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(topLeft: Radius.circular(31), bottomRight: Radius.circular(31)),
               color: Colors.red,
             ),
-            child: Center(
+            child: const Center(
               child: Text("Help   ->", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.white)),
             ),
           ),
@@ -242,7 +251,7 @@ Widget HelpOption(String imageLocation, String title, Function helpfunc) {
         Positioned(
           top: 8,
           left: 20,
-          child: Text(title, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.white)),
+          child: Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.white)),
         ),
       ],
     ),
