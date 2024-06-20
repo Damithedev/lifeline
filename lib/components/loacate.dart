@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -70,7 +71,38 @@ Future<Position> determinePosition() async {
 
 
 
-  Future<String> getLocationName() async {
+  
+
+
+
+
+
+
+Future<List<User>> getNearbyUsers(double longitude, double latitude ) async {
+  String? base = dotenv.env["URL"];
+  print(base); 
+  try {
+    final response = await http.get(Uri.parse('$base/nearby?longitude=$longitude&latitude=$latitude&uid=$uid'))
+        .timeout(const Duration(milliseconds: 60000));
+
+    if (response.statusCode == 200) {
+      List<dynamic> jsonList = jsonDecode(response.body);
+      List<User> users = jsonList.map((json) => User.fromJson(json)).toList();
+      return users;
+    } else {
+      // If the server returns an error response, log the response body for debugging.
+      print('Error: ${response.statusCode}');
+      print('Response: ${response.body}');
+      throw Exception('Failed to get nearby users');
+    }
+  } catch (e) {
+    // Handle timeout or other network-related errors.
+    print('Network error: $e');
+    throw Exception('Failed to connect to server');
+  }
+}
+
+Future<String> getLocationName() async {
   Position position = await determinePosition();
     double latitude = position.latitude;
     double longitude = position.longitude;
@@ -94,30 +126,40 @@ Future<Position> determinePosition() async {
       print('Error: $e');
       return "Unknown Location";
     }
-      return "Error in getting location try again";
   }
-Future<List<User>> getNearbyUsers(double longitude, double latitude ) async {
-  String? base = dotenv.env["URL"];
-  print(base); 
-  try {
-    final response = await http.get(Uri.parse('$base/nearby?longitude=$longitude&latitude=$latitude&uid=$uid'))
-        .timeout(const Duration(milliseconds: 60000));
 
-    if (response.statusCode == 200) {
-      List<dynamic> jsonList = jsonDecode(response.body);
-      List<User> users = jsonList.map((json) => User.fromJson(json)).toList();
-      return users;
-    } else {
-      // If the server returns an error response, log the response body for debugging.
-      print('Error: ${response.statusCode}');
-      print('Response: ${response.body}');
-      throw Exception('Failed to get nearby users');
-    }
-  } catch (e) {
-    // Handle timeout or other network-related errors.
-    print('Network error: $e');
-    throw Exception('Failed to connect to server');
-  }
+
+  Map<String, double> calculateMidpoint(double lat1, double lon1, double lat2, double lon2) {
+  // Convert latitude and longitude from degrees to radians
+  lat1 = lat1 * pi / 180;
+  lon1 = lon1 * pi / 180;
+  lat2 = lat2 * pi / 180;
+  lon2 = lon2 * pi / 180;
+
+  // Cartesian coordinates for the two points
+  double X1 = cos(lat1) * cos(lon1);
+  double Y1 = cos(lat1) * sin(lon1);
+  double Z1 = sin(lat1);
+  
+  double X2 = cos(lat2) * cos(lon2);
+  double Y2 = cos(lat2) * sin(lon2);
+  double Z2 = sin(lat2);
+
+  // Average the Cartesian coordinates
+  double Xm = (X1 + X2) / 2;
+  double Ym = (Y1 + Y2) / 2;
+  double Zm = (Z1 + Z2) / 2;
+
+  // Convert back to latitude and longitude
+  double lonm = atan2(Ym, Xm);
+  double hyp = sqrt(Xm * Xm + Ym * Ym);
+  double latm = atan2(Zm, hyp);
+
+  // Convert back to degrees
+  latm = latm * 180 / pi;
+  lonm = lonm * 180 / pi;
+
+  return {'latitude': latm, 'longitude': lonm};
 }
 
 
@@ -206,11 +248,15 @@ Future<String> getLocationNameside(double lat, double long) async {
 
 
 Future<List<LatLng>> getroute(Position startpoint , Position endpoint) async {
+  print("https://api.mapbox.com/directions/v5/mapbox/driving/${startpoint.longitude},${startpoint.latitude};${endpoint.longitude},${endpoint.latitude}?alternatives=false&geometries=geojson&language=en&overview=full&steps=true&access_token=pk.eyJ1IjoiZGFtaWxvbGE1NTUiLCJhIjoiY2x2dGllYm1pMTg2bzJpbnZ3cDQ2cWVhcCJ9.zcbC4fyWaZcf5LNeXUVmkA");
   var response = await http.get(Uri.parse("https://api.mapbox.com/directions/v5/mapbox/driving/${startpoint.longitude},${startpoint.latitude};${endpoint.longitude},${endpoint.latitude}?alternatives=false&geometries=geojson&language=en&overview=full&steps=true&access_token=pk.eyJ1IjoiZGFtaWxvbGE1NTUiLCJhIjoiY2x2dGllYm1pMTg2bzJpbnZ3cDQ2cWVhcCJ9.zcbC4fyWaZcf5LNeXUVmkA"));
   if(response.statusCode == 200 ){
       var data = jsonDecode(response.body);
-      listofpoints = data[0]['geometry']['coordinates'];
+      
+      listofpoints = data['routes'][0]['geometry']['coordinates'];
+     
       List<LatLng> points = listofpoints.map((e) => LatLng(e[1].toDouble(), e[0].toDouble())).toList();
+      print(points);
       return points;
 
   }

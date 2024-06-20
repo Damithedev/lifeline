@@ -7,18 +7,18 @@ import 'package:latlong2/latlong.dart';
 import 'package:lifeline/components/loacate.dart';
 import 'package:lottie/lottie.dart' as lt;
 
-class MapVieww extends StatefulWidget {
+class FAMapVieww extends StatefulWidget {
   final Position Help;
   final Position Responder;
   final String role;
   final Map<String, dynamic> data;
-  const MapVieww({super.key, required this.Help, required this.Responder, required this.role, required this.data});
+  const FAMapVieww({super.key, required this.Help, required this.Responder, required this.role, required this.data});
 
   @override
-  State<MapVieww> createState() => _MapViewwState();
+  State<FAMapVieww> createState() => _FAMapViewwState();
 }
 
-class _MapViewwState extends State<MapVieww> {
+class _FAMapViewwState extends State<FAMapVieww> {
   Map<String, dynamic>? userdataa;
   
   @override
@@ -99,7 +99,7 @@ class _MapViewwState extends State<MapVieww> {
                           children: [
                             widget.role == "RE" ? lt.Lottie.asset('images/scan.json', width: 200) : Container(),
                             Center(
-                              child: Image.asset('images/car.png', width: 100, height: 100),
+                              child: Icon(Icons.add, size: 20,)
                             ),
                           ],
                         ),
@@ -110,6 +110,8 @@ class _MapViewwState extends State<MapVieww> {
                         point: LatLng(widget.Help.latitude, widget.Help.longitude),
                         child: Stack(
                           children: [
+
+                            
                             widget.role == "HE" ? lt.Lottie.asset('images/scan.json', width: double.infinity) : Container(),
                             const Center(
                               child: CircleAvatar(
@@ -163,7 +165,7 @@ class _MapViewwState extends State<MapVieww> {
                                         style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 18),
                                       ),
                                       Text(
-                                        "Ride To Hospital",
+                                        "First Aid Service",
                                         style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 14),
                                       ),
                                     ],

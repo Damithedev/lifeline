@@ -1,8 +1,13 @@
+import 'dart:collection';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:lifeline/rth.dart';
 import 'package:lifeline/ui/Splashscreen.dart';
 import 'package:lifeline/components/loacate.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class Responder extends StatefulWidget {
@@ -90,11 +95,27 @@ class _ResponderState extends State<Responder> {
 
     // Connect the socket
     socket.connect();
-   socket.on('accept', (data) {
-    print("recieved");
+   socket.on('accept', (data) async {
+    print("DATA: $data");
+  final SharedPreferences prefs =  await SharedPreferences.getInstance();
+  
       Navigator.pushAndRemoveUntil(
   context,
-  MaterialPageRoute(builder: (context) => const Splashscreen()),
+  MaterialPageRoute(builder: (context) => MapVieww(Help: Position(longitude: data['longitude'], latitude:data['latitude'], timestamp: DateTime.now(),      // Example timestamp in milliseconds since Unix epoch (July 2, 2021 07:00:00 GMT)
+    accuracy: 5.0,                 // Example accuracy in meters
+    altitude: 30.0,                // Example altitude in meters
+    altitudeAccuracy: 10.0,        // Example altitude accuracy in meters
+    heading: 180.0,                // Example heading in degrees (south)
+    headingAccuracy: 5.0,          // Example heading accuracy in degrees
+    speed: 10.0,                   // Example speed in meters per second
+    speedAccuracy: 0.5  ), Responder: Position(longitude: prefs.getDouble('longitude')!, latitude:prefs.getDouble('latitude')!,  timestamp: DateTime.now(),      // Example timestamp in milliseconds since Unix epoch (July 2, 2021 07:00:00 GMT)
+    accuracy: 5.0,        
+    altitude: 30.0,       
+    altitudeAccuracy: 10.0,        
+    heading: 180.0,               
+    headingAccuracy: 5.0,          
+    speed: 10.0,                 
+    speedAccuracy: 0.5  ), role: "RE", data: data,)),
   (Route<dynamic> route) => false,
 );
     },);
@@ -166,7 +187,9 @@ class _ResponderState extends State<Responder> {
                           
                         }),
                         const Spacer(),
-                        HelpOption('images/call.jpeg', 'Call to Assist', (){}),
+                        HelpOption('images/call.jpeg', 'Call to Assist', (){
+                          showtimer("FA");
+                        }),
                         const Spacer(),
                       ],
                     ),
@@ -179,32 +202,37 @@ class _ResponderState extends State<Responder> {
       },
     );
   }
-  
-  Future<void> showtimer(String help) {
-    socket.emit('RTH', {"responderuid": uid, "helpuid": widget.uid , "help": help, "distance": widget.distance});
-   
-     return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
- 
-        return const AlertDialog(
-          title: Text('Sending request'),
-          content: SizedBox(
-            width: 50,
-            height: 40,
-            child: Center(
-              child: CircularProgressIndicator(
-                
-              ),
-            ),
+  Future<void> showtimer(String help) async {
+    
+  Position userposition = await determinePosition();
+  socket.emit('RTH', {
+    "responderuid": uid,
+    "helpuid": widget.uid,
+    "help": help,
+    "distance": widget.distance,
+    "longitude": userposition.longitude,
+    "latitude": userposition.latitude
+  });
+
+  showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return const AlertDialog(
+        title: Text('Sending request'),
+        content: SizedBox(
+          width: 50,
+          height: 40,
+          child: Center(
+            child: CircularProgressIndicator(),
           ),
-        
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
 }
+}
+
 
 Widget HelpOption(String imageLocation, String title, Function helpfunc) {
   return InkWell(

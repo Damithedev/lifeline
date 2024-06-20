@@ -9,7 +9,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:lifeline/rth.dart';
 import 'package:lifeline/ui/Respond.dart';
 import 'package:lifeline/ui/Splashscreen.dart';
-
 import 'package:rxdart/rxdart.dart';
   
 import 'firebase_options.dart';
@@ -127,7 +126,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: const MapVieww(),
+      home: const Splashscreen(),
       navigatorKey: navigatorKey,
     );
   }

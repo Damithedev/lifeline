@@ -4,9 +4,12 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:lifeline/FA.dart';
 import 'package:lifeline/components/loacate.dart';
 import 'package:lifeline/rth.dart';
 import 'package:lifeline/ui/Splashscreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -172,14 +175,55 @@ class _ScanpageState extends State<Scanpage> {
                         padding: const EdgeInsets.symmetric(horizontal: 30),
                                     backgroundColor: Colors.green,
                                   ),
-                                  onPressed: () {
-                                    socket.emit('accept', items[index] );
-                                    Navigator.pushReplacement(
+                                  onPressed: () async {
+                                        final SharedPreferences prefs = await SharedPreferences.getInstance();
+                                    socket.emit('accept', {"helpuid": uid, "responderuid": items[index]['responderuid'], "longitude": prefs.getDouble('longitude')!, "latitude":prefs.getDouble('latitude')!, "help":items[index]['help'] } , );
+
+                                 if(items[index]['help'] ==  "ride"){
+                                         Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const Splashscreen(),
+          builder: (context) =>  MapVieww(Help: Position(longitude: prefs.getDouble('longitude')!, latitude:prefs.getDouble('latitude')!, timestamp: DateTime.now(),      // Example timestamp in milliseconds since Unix epoch (July 2, 2021 07:00:00 GMT)
+    accuracy: 5.0,                 // Example accuracy in meters
+    altitude: 30.0,                // Example altitude in meters
+    altitudeAccuracy: 10.0,
+    heading: 180.0,         
+    headingAccuracy: 5.0,
+    speed: 10.0,                 
+    speedAccuracy: 0.5  ), Responder: Position(longitude: items[index]['longitude'], latitude: items[index]['latitude'],  timestamp: DateTime.now(),      // Example timestamp in milliseconds since Unix epoch (July 2, 2021 07:00:00 GMT)
+    accuracy: 5.0,        
+    altitude: 30.0,       
+    altitudeAccuracy: 10.0,        
+    heading: 180.0,               
+    headingAccuracy: 5.0,          
+    speed: 10.0,                 
+    speedAccuracy: 0.5  ), role: "HE", data: {"helpuid": uid, "responderuid": items[index]['responderuid'], "longitude": prefs.getDouble('longitude')!, "latitude":prefs.getDouble('latitude')! } ,),
         ),
       );
+                                 }
+                                 else if(items[index]['help'] ==  "FA"){
+                                   Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>  FAMapVieww(Help: Position(longitude: prefs.getDouble('longitude')!, latitude:prefs.getDouble('latitude')!, timestamp: DateTime.now(),      // Example timestamp in milliseconds since Unix epoch (July 2, 2021 07:00:00 GMT)
+    accuracy: 5.0,                 // Example accuracy in meters
+    altitude: 30.0,                // Example altitude in meters
+    altitudeAccuracy: 10.0,
+    heading: 180.0,         
+    headingAccuracy: 5.0,
+    speed: 10.0,                 
+    speedAccuracy: 0.5  ), Responder: Position(longitude: items[index]['longitude'], latitude: items[index]['latitude'],  timestamp: DateTime.now(),      // Example timestamp in milliseconds since Unix epoch (July 2, 2021 07:00:00 GMT)
+    accuracy: 5.0,        
+    altitude: 30.0,       
+    altitudeAccuracy: 10.0,        
+    heading: 180.0,               
+    headingAccuracy: 5.0,          
+    speed: 10.0,                 
+    speedAccuracy: 0.5  ), role: "HE", data: {"helpuid": uid, "responderuid": items[index]['responderuid'], "longitude": prefs.getDouble('longitude')!, "latitude":prefs.getDouble('latitude')! } ,),
+        ),
+      );
+                                 }
+                              
                                   },
                         
                                   child: const Text('Accept', style: TextStyle(color: Colors.white, fontSize: 13)),
@@ -256,7 +300,10 @@ class _ScanpageState extends State<Scanpage> {
     // Handle custom event
     socket.on('RTH', (data) async {
    Map<String,dynamic> info = await getuserinfoo(data['responderuid']);
+    final SharedPreferences prefs =  await SharedPreferences.getInstance();
    print(info);
+   info['latitude'] = data['latitude'];
+   info['longitude'] = data['longitude'];
    info['responderuid'] = data['responderuid'];
    info["distance"] = data["distance"];
    info["help"] = data["help"];
